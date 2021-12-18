@@ -6,6 +6,10 @@
 #define NOMCX
 #include <Windows.h>
 #include <GL/GL.h>
+#include <iostream>
+#include <fstream>
+#include <stdint.h>
+#include <sstream>
 
 /* OpenGL constants. */
 #if defined(_WIN64)
@@ -32,6 +36,12 @@ typedef signed long long int GLintptr;
 typedef signed long      int GLsizeiptr;
 typedef signed long      int GLintptr;
 #endif
+
+#define GL_ARRAY_BUFFER                   0x8892
+#define GL_STATIC_DRAW                    0x88E4
+#define GL_FRAGMENT_SHADER                0x8B30
+#define GL_VERTEX_SHADER                  0x8B31
+#define GL_ELEMENT_ARRAY_BUFFER           0x8893
 
 /* OpenGL types. */
 typedef GLuint(*PFNGLCREATEPROGRAMPROC) (void);

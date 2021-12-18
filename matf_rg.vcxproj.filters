@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{52e3c613-a7c2-4f60-ad06-1471a592c91e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -28,5 +31,13 @@
     <ClInclude Include="gl.hpp">
       <Filter>Header</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="default_vert.glsl">
+      <Filter>Shader</Filter>
+    </Text>
+    <Text Include="default_frag.glsl">
+      <Filter>Shader</Filter>
+    </Text>
   </ItemGroup>
 </Project>
