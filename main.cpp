@@ -13,6 +13,14 @@ static struct
 	{
 		int open;
 	} display;
+
+	struct
+	{
+		int alt;
+		int lmb;
+		int mmb;
+		int wheel;
+	} controller;
 } win32;
 
 LRESULT CALLBACK
@@ -37,6 +45,37 @@ windowproc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 			PostQuitMessage(0);
 		}
 		break;
+	case WM_LBUTTONDOWN:
+		win32.controller.lmb = 1;
+		break;
+	case WM_LBUTTONUP:
+		win32.controller.lmb = 0;
+		break;
+	case WM_MBUTTONDOWN:
+		win32.controller.mmb = 1;
+		break;
+	case WM_MBUTTONUP:
+		win32.controller.mmb = 0;
+		break;
+	case WM_MOUSEWHEEL:
+		win32.controller.wheel = GET_WHEEL_DELTA_WPARAM(wParam);
+		break;
+	case WM_SYSKEYDOWN:
+		if (wParam == VK_MENU)
+		{
+			win32.controller.alt = 1;
+		}
+		break;
+	case WM_SYSKEYUP:
+		if (wParam == VK_MENU)
+		{
+			win32.controller.alt = 0;
+		}
+		break;
+	case WM_MOUSEMOVE:
+		win32.cursor.x = GET_X_LPARAM(lParam);
+		win32.cursor.y = GET_Y_LPARAM(lParam);
+		break;
 	case WM_PAINT:
 		BeginPaint(window, &ps);
 		EndPaint(window, &ps);
@@ -54,6 +93,7 @@ windowproc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 int
 WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmdline, _In_ int showcmd)
 {
+	struct r_tick tick;
 	PIXELFORMATDESCRIPTOR pfd;
 	WNDCLASSEX wcex;
 	HWND window;
@@ -89,9 +129,12 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 		WGL_DEPTH_BITS_ARB, 24,
 		WGL_STENCIL_BITS_ARB, 8,
 		WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
-		WGL_SAMPLES_ARB, 4,
+		WGL_SAMPLES_ARB, 16,
 		0
 	};
+	
+	AllocConsole();
+	freopen("CONOUT$", "w", stdout);
 
 	/* Find wgl functions for context creation. */
 	wcex = {};
@@ -223,6 +266,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 	UpdateWindow(window);
 
 	message = { };
+	tick = { };
 	r_glbegin();
 	while (win32.display.open)
 	{
@@ -235,7 +279,29 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 		{
 			win32.display.open = 0;
 		}
-		r_gltick();
+
+		if (win32.controller.lmb || win32.controller.mmb)
+		{
+			tick.cursor.dx = tick.cursor.x - win32.cursor.x;
+			tick.cursor.dy = tick.cursor.y - win32.cursor.y;
+			if (win32.controller.lmb && win32.controller.alt)
+			{
+				tick.cursor.mode = CURSOR_MODE_ORBIT;
+			}
+			else if (win32.controller.mmb && win32.controller.alt)
+			{
+				tick.cursor.mode = CURSOR_MODE_PAN;
+			}
+		}
+		else
+		{
+			tick.cursor.mode = CURSOR_MODE_STAGNANT;
+		}
+		tick.cursor.wheel = win32.controller.wheel;
+		tick.cursor.x = win32.cursor.x;
+		tick.cursor.y = win32.cursor.y;
+		r_gltick(tick);
+		win32.controller.wheel = 0;
 		SwapBuffers(hdc);
 		Sleep(1);
 	}
@@ -245,5 +311,5 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 	DestroyWindow(window);
 	UnregisterClass(classmain, instance);
 
-	return (int) message.wParam;
+	return (int)message.wParam;
 }

@@ -5,11 +5,17 @@
 #define NOMB
 #define NOMCX
 #include <Windows.h>
+#include <Windowsx.h>
 #include <GL/GL.h>
 #include <iostream>
 #include <fstream>
 #include <stdint.h>
 #include <sstream>
+#include <vector>
+#include <map>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 /* OpenGL constants. */
 #if defined(_WIN64)
