@@ -20,6 +20,9 @@ static struct
 		int lmb;
 		int mmb;
 		int wheel;
+		int number_0;
+		int number_1;
+		int number_2;
 	} controller;
 } win32;
 
@@ -43,6 +46,32 @@ windowproc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 		if (wParam == VK_ESCAPE)
 		{
 			PostQuitMessage(0);
+		}
+		else if (wParam == '1')
+		{
+			win32.controller.number_1 = 1;
+		}
+		else if (wParam == '2')
+		{
+			win32.controller.number_2 = 1;
+		}
+		else if (wParam == '0')
+		{
+			win32.controller.number_0 = 1;
+		}
+		break;
+	case WM_KEYUP:
+		if (wParam == '1')
+		{
+			win32.controller.number_1 = 0;
+		}
+		else if (wParam == '2')
+		{
+			win32.controller.number_2 = 0;
+		}
+		else if (wParam == '0')
+		{
+			win32.controller.number_0 = 0;
 		}
 		break;
 	case WM_LBUTTONDOWN:
@@ -132,7 +161,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 		WGL_SAMPLES_ARB, 16,
 		0
 	};
-	
+
 	AllocConsole();
 	freopen("CONOUT$", "w", stdout);
 
@@ -146,7 +175,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 	wcex.lpszClassName = classdummy;
 	RegisterClassEx(&wcex);
 
-	windowdummy = CreateWindow(classdummy, TEXT(""), WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, 640, 480, NULL, NULL, instance, NULL);
+	windowdummy = CreateWindow(classdummy, TEXT(""), WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, 1680, 1050, NULL, NULL, instance, NULL);
 	hdcdummy = GetDC(windowdummy);
 
 	pfd = { };
@@ -186,7 +215,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 	wcex.lpszClassName = classmain;
 	RegisterClassEx(&wcex);
 
-	window = CreateWindowEx(0, classmain, TEXT("aaaaa"), WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, 640, 480, NULL, NULL, instance, NULL);
+	window = CreateWindowEx(0, classmain, TEXT("aaaaa"), WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, 1680, 1050, NULL, NULL, instance, NULL);
 	hdc = GetDC(window);
 
 	wglChoosePixelFormatARB(hdc, pixel, NULL, 1, &format_id, &formatcount);
@@ -258,6 +287,13 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 	glDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)wglGetProcAddress("glDeleteVertexArrays");
 	glActiveTexture = (PFNGLACTIVETEXTUREPROC)wglGetProcAddress("glActiveTexture");
 	glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)wglGetProcAddress("glGenerateMipmap");
+	glGenFramebuffers = (PFNGLGENFRAMEBUFFERSPROC)wglGetProcAddress("glGenFramebuffers");
+	glFramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)wglGetProcAddress("glFramebufferTexture2D");
+	glBindFramebuffer = (PFNGLBINDFRAMEBUFFERPROC)wglGetProcAddress("glBindFramebuffer");
+	glGenRenderbuffers = (PFNGLGENRENDERBUFFERSPROC)wglGetProcAddress("glGenRenderbuffers");
+	glBindRenderbuffer = (PFNGLBINDRENDERBUFFERPROC)wglGetProcAddress("glBindRenderbuffer");
+	glFramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFERPROC)wglGetProcAddress("glFramebufferRenderbuffer");
+	glRenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEPROC)wglGetProcAddress("glRenderbufferStorage");
 	strcpy_s(title, "matf rg 2021/2022 (");
 	strcat_s(title, 128 - 1, (char*)glGetString(GL_VERSION));
 	strcat_s(title, 128, ")");
@@ -297,6 +333,29 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 		{
 			tick.cursor.mode = CURSOR_MODE_STAGNANT;
 		}
+
+		if (win32.controller.number_1)
+		{
+			if (r_newscene(scene::SCENE_ROOM))
+			{
+				std::cout << "bad issue\n";
+			}
+		}
+		else if (win32.controller.number_2)
+		{
+			if (r_newscene(scene::SCENE_PRIMITIVES))
+			{
+				std::cout << "bad issue\n";
+			}
+		}
+		else if (win32.controller.number_0)
+		{
+			if (r_newscene(scene::SCENE_VOID))
+			{
+				std::cout << "bad issue\n";
+			}
+		}
+
 		tick.cursor.wheel = win32.controller.wheel;
 		tick.cursor.x = win32.cursor.x;
 		tick.cursor.y = win32.cursor.y;

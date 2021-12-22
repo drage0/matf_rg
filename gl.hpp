@@ -16,6 +16,14 @@ struct r_tick
 	} cursor;
 };
 
+enum class scene: unsigned char
+{
+	SCENE_VOID,
+	SCENE_ROOM,
+	SCENE_PRIMITIVES,
+};
+
 extern int r_glbegin(void);
+extern int r_newscene(enum scene scene);
 extern void r_gltick(struct r_tick tick);
 extern void r_glexit(void);

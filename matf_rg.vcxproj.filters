@@ -33,11 +33,35 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="default_vert.glsl">
+    <None Include="rom\program\default_vert.glsl">
       <Filter>Shader</Filter>
-    </Text>
-    <Text Include="default_frag.glsl">
+    </None>
+    <None Include="rom\program\skybox_frag.glsl">
       <Filter>Shader</Filter>
-    </Text>
+    </None>
+    <None Include="rom\program\skybox_vert.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="rom\program\default_frag.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="rom\program\billboard_frag.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="rom\program\billboard_vert.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="rom\program\line_frag.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="rom\program\line_vert.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="rom\program\ppfx_frag.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="rom\program\ppfx_vert.glsl">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

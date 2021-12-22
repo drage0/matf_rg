@@ -96,18 +96,16 @@
     <ClInclude Include="global.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="default_vert.glsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="default_frag.glsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </Text>
+    <None Include="rom\program\billboard_frag.glsl" />
+    <None Include="rom\program\billboard_vert.glsl" />
+    <None Include="rom\program\default_frag.glsl" />
+    <None Include="rom\program\default_vert.glsl" />
+    <None Include="rom\program\line_frag.glsl" />
+    <None Include="rom\program\line_vert.glsl" />
+    <None Include="rom\program\ppfx_frag.glsl" />
+    <None Include="rom\program\ppfx_vert.glsl" />
+    <None Include="rom\program\skybox_frag.glsl" />
+    <None Include="rom\program\skybox_vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
