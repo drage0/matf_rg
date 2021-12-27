@@ -1,12 +1,6 @@
 #pragma once
 
-#define WIN32_LEAN_AND_MEAN
-#define NOSERVICE
-#define NOMB
-#define NOMCX
-#include <Windows.h>
-#include <Windowsx.h>
-#include <GL/GL.h>
+
 #include <iostream>
 #include <fstream>
 #include <stdint.h>
@@ -17,6 +11,16 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+
+#if defined(_WIN64) || defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#define NOSERVICE
+#define NOMB
+#define NOMCX
+#include <Windows.h>
+#include <Windowsx.h>
+
+#include <GL/gl.h>
 
 /* OpenGL constants. */
 #if defined(_WIN64)
@@ -198,3 +202,8 @@ extern PFNGLGENRENDERBUFFERSPROC glGenRenderbuffers;
 extern PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer;
 extern PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer;
 extern PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage;
+
+#else
+#include <GL/glew.h>
+#include <GL/gl.h>
+#endif

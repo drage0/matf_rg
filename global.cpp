@@ -1,5 +1,6 @@
 #include "global.hpp"
 
+#if defined(_WIN64) || defined(_WIN32)
 PFNGLCREATEPROGRAMPROC glCreateProgram = 0;
 PFNGLDELETEPROGRAMPROC glDeleteProgram = 0;
 PFNGLUSEPROGRAMPROC glUseProgram = 0;
@@ -56,3 +57,5 @@ PFNGLGENRENDERBUFFERSPROC glGenRenderbuffers = 0;
 PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer = 0;
 PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer = 0;
 PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage = 0;
+#endif
+
