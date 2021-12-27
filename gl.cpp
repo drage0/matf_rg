@@ -311,7 +311,7 @@ program_new(const char* vertex_file_path, const char* fragment_file_path, int wh
 int
 r_newscene(enum scene scene)
 {
-	const std::string workdir = R"(C:\Users\pengu\Documents\maya\projects\matf-rg\export\)";
+	const std::string workdir = "rom/part/";
 	std::string line, active_material = "none", active_name = "none";
 	std::ifstream fp, fm;
 	std::vector<glm::vec3> buffer_vertex;
