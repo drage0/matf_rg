@@ -58,8 +58,8 @@ struct material
 
 static struct
 {
-	uint32_t vbo, vbo_sky, vbo_bb, vbo_line;
-	uint32_t vao, vao_sky, vao_bb, vao_line;
+	uint32_t vbo, vbo_sky, vbo_bb, vbo_line, vbo_ppfx;
+	uint32_t vao, vao_sky, vao_bb, vao_line, vao_ppfx;
 	std::vector<struct object> object;
 	std::vector<struct object> object_transparent;
 	std::vector<struct billboard> billboard;
@@ -127,6 +127,16 @@ static struct
 			uint32_t colour;
 		} uniform;
 	} program_line;
+
+	struct
+	{
+		uint32_t id;
+		struct
+		{
+			uint32_t imgtexture;
+			uint32_t display_resolution;
+		} uniform;
+	} program_display;
 
 	enum scene scene;
 } gl;
@@ -283,6 +293,11 @@ program_new(const char* vertex_file_path, const char* fragment_file_path, int wh
 	{
 		gl.program_line.uniform.mvp = glGetUniformLocation(program, "mvp");
 		gl.program_line.uniform.colour = glGetUniformLocation(program, "colour");
+	}
+	else if (which == 4)
+	{
+		gl.program_display.uniform.imgtexture = glGetUniformLocation(program, "imgtexture");
+		gl.program_display.uniform.display_resolution = glGetUniformLocation(program, "display_resolution");
 	}
 
 	glDetachShader(program, vertex);
@@ -728,6 +743,16 @@ r_glbegin(void)
 		-1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
 		-1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 	};
+	static const float display_vertices[] =
+	{
+		-1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+
+		1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		-1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+	};
 	struct billboard billboard;
 	unsigned char* data = nullptr;
 	int w = 0, h = 0, c = 0;
@@ -743,16 +768,19 @@ r_glbegin(void)
 	//
 	glGenFramebuffers(1, &gl.fb_display);
 	glBindFramebuffer(GL_FRAMEBUFFER, gl.fb_display);
+
 	glGenTextures(1, &gl.texture_fb_display);
 	glBindTexture(GL_TEXTURE_2D, gl.texture_fb_display);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 640, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1680, 1050, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl.texture_fb_display, 0);
 
 	glGenRenderbuffers(1, &gl.rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, gl.rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 640, 480);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1680, 1050);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gl.rbo);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -761,7 +789,7 @@ r_glbegin(void)
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1680, 1050, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -770,6 +798,7 @@ r_glbegin(void)
 	gl.program_sky.id = program_new("rom/program/skybox_vert.glsl", "rom/program/skybox_frag.glsl", 1);
 	gl.program_bb.id = program_new("rom/program/billboard_vert.glsl", "rom/program/billboard_frag.glsl", 2);
 	gl.program_line.id = program_new("rom/program/line_vert.glsl", "rom/program/line_frag.glsl", 3);
+	gl.program_display.id = program_new("rom/program/ppfx_vert.glsl", "rom/program/ppfx_frag.glsl", 4);
 
 	glGenTextures(1, &gl.texture_white);
 	glActiveTexture(GL_TEXTURE0);
@@ -867,6 +896,18 @@ r_glbegin(void)
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
+	glGenBuffers(1, &gl.vbo_ppfx);
+	glGenVertexArrays(1, &gl.vao_ppfx);
+	glBindVertexArray(gl.vao_ppfx);
+	glBindBuffer(GL_ARRAY_BUFFER, gl.vbo_ppfx);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(display_vertices), display_vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (3 + 2) * sizeof(float), (void*)(sizeof(float) * 0));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, (3 + 2) * sizeof(float), (void*)(sizeof(float) * 3));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	glViewport(0, 0, 1680, 1050);
+
 	return r_newscene(scene::SCENE_VOID);
 }
 
@@ -875,8 +916,6 @@ r_gltick(struct r_tick tick)
 {
 	const float radius_factor = powf(gl.trackball.radius / 10.0f, 1.225f);
 	uint32_t i;
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (tick.cursor.wheel != 0)
 	{
@@ -905,6 +944,11 @@ r_gltick(struct r_tick tick)
 		break;
 	}
 
+	glBindFramebuffer(GL_FRAMEBUFFER, gl.fb_display);
+
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	glDepthMask(GL_FALSE);
 	glFrontFace(GL_CW);
 	glUseProgram(gl.program_sky.id);
@@ -930,7 +974,7 @@ r_gltick(struct r_tick tick)
 
 	glUseProgram(gl.program_bb.id);
 	glBindVertexArray(gl.vao_bb);
-	glUniform2fv(gl.program_bb.uniform.screenwh, 1, glm::value_ptr(glm::vec2(640.0f, 480.0f)));
+	glUniform2fv(gl.program_bb.uniform.screenwh, 1, glm::value_ptr(glm::vec2(1680.0f, 1050.0f)));
 	for (i = 0; i < gl.billboard.size(); i++)
 	{
 		glm::mat4 mvp;
@@ -1083,6 +1127,19 @@ r_gltick(struct r_tick tick)
 
 		glDrawArrays(GL_TRIANGLES, gl.object_transparent[i].vfirst, gl.object_transparent[i].vcount);
 	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glUseProgram(gl.program_display.id);
+	glBindVertexArray(gl.vbo_ppfx);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(gl.program_display.uniform.imgtexture, 0);
+	glUniform2fv(gl.program_display.uniform.display_resolution, 1, glm::value_ptr(glm::vec2(1680.0f, 1050.0f)));
+	glBindTexture(GL_TEXTURE_2D, gl.texture_fb_display);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void

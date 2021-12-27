@@ -55,7 +55,7 @@ void main()
     //
     
     // get diffuse color
-    color = diffuse_in*texture(imgtexture, uv).rgb*vec3(0.99f);
+    color = diffuse_in*texture(imgtexture, uv).rgb*vec3(245.0f/255.0f, 235.0f/255.0f, 210.0f/255.0f)*2;
     // ambient
     ambient = ambient_in;
     // diffuse
