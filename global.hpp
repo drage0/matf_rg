@@ -1,5 +1,7 @@
 #pragma once
 
+extern int def_w;
+extern int def_h;
 
 #include <iostream>
 #include <fstream>

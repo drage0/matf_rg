@@ -321,7 +321,7 @@ r_newscene(enum scene scene)
 	std::vector<float> buffer_line_final;
 	uint32_t vfirst = 0;
 
-	gl.trackball.aspect = 1680.0f / 1050.0f;
+	gl.trackball.aspect = def_w / def_h;
 	switch (scene)
 	{
 	default:
@@ -762,6 +762,7 @@ r_glbegin(void)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glEnable(GL_FRAMEBUFFER_SRGB);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//
 	// Framebuffer display
@@ -771,14 +772,14 @@ r_glbegin(void)
 
 	glGenTextures(1, &gl.texture_fb_display);
 	glBindTexture(GL_TEXTURE_2D, gl.texture_fb_display);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1680, 1050, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, def_w, def_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl.texture_fb_display, 0);
 
 	glGenRenderbuffers(1, &gl.rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, gl.rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1680, 1050);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, def_w, def_h);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gl.rbo);
@@ -789,7 +790,7 @@ r_glbegin(void)
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1680, 1050, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, def_w, def_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -809,7 +810,7 @@ r_glbegin(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	data = stbi_load("rom/normal.jpg", &w, &h, &c, 0);
+	data = stbi_load("rom/normal_default.jpg", &w, &h, &c, 0);
 	glGenTextures(1, &gl.texture_normal);
 	glBindTexture(GL_TEXTURE_2D, gl.texture_normal);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -906,7 +907,7 @@ r_glbegin(void)
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-	glViewport(0, 0, 1680, 1050);
+	glViewport(0, 0, def_w, def_h);
 
 	return r_newscene(scene::SCENE_VOID);
 }
@@ -972,9 +973,12 @@ r_gltick(struct r_tick tick)
 	glDepthMask(GL_TRUE);
 	glFrontFace(GL_CCW);
 
+	//
+	// Billboard.
+	//
 	glUseProgram(gl.program_bb.id);
 	glBindVertexArray(gl.vao_bb);
-	glUniform2fv(gl.program_bb.uniform.screenwh, 1, glm::value_ptr(glm::vec2(1680.0f, 1050.0f)));
+	glUniform2fv(gl.program_bb.uniform.screenwh, 1, glm::value_ptr(glm::vec2(def_w, def_h)));
 	for (i = 0; i < gl.billboard.size(); i++)
 	{
 		glm::mat4 mvp;
@@ -992,6 +996,9 @@ r_gltick(struct r_tick tick)
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 
+	//
+	// Lines.
+	//
 	glUseProgram(gl.program_line.id);
 	glBindVertexArray(gl.vao_line);
 	glUniformMatrix4fv(gl.program_line.uniform.mvp, 1, GL_FALSE, glm::value_ptr(gl.trackball.viewproj));
@@ -1009,6 +1016,9 @@ r_gltick(struct r_tick tick)
 	glUniform1i(gl.program.uniform.imgtexture, 0);
 	glUniform1i(gl.program.uniform.normalmap, 1);
 
+	//
+	// Regular object.
+	//
 	glBindVertexArray(gl.vao);
 	for (i = 0; i < gl.object.size(); i++)
 	{
@@ -1023,13 +1033,19 @@ r_gltick(struct r_tick tick)
 		{
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, m.diffuse_texture);
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, m.normal_texture);
 		}
 		else
 		{
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, gl.texture_white);
+		}
+		if (m.normal_texture)
+		{
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, m.normal_texture);
+		}
+		else
+		{
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, gl.texture_normal);
 		}
@@ -1037,6 +1053,7 @@ r_gltick(struct r_tick tick)
 		glDrawArrays(GL_TRIANGLES, gl.object[i].vfirst, gl.object[i].vcount);
 	}
 
+	// SCENE 2
 	for (i = 0; i < gl.object_transparent.size(); i++)
 	{
 		if (gl.object_transparent[i].name == "pCube1") { gl.object_transparent[i].explicit_position = { -5.0f, 0.0f, 0.0f }; }
@@ -1059,6 +1076,9 @@ r_gltick(struct r_tick tick)
 		std::sort(gl.object_transparent.begin(), gl.object_transparent.end(), object_compare());
 	}
 
+	//
+	// Transparent (pass 1).
+	//
 	glFrontFace(GL_CW);
 	for (i = 0; i < gl.object_transparent.size(); i++)
 	{
@@ -1079,19 +1099,27 @@ r_gltick(struct r_tick tick)
 		{
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, m.diffuse_texture);
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, m.normal_texture);
 		}
 		else
 		{
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, gl.texture_white);
+		}
+		if (m.normal_texture)
+		{
+
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, m.normal_texture);
+		}
+		else
+		{
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, gl.texture_normal);
 		}
 
 		glDrawArrays(GL_TRIANGLES, gl.object_transparent[i].vfirst, gl.object_transparent[i].vcount);
 	}
+	// Transparent (pass 2).
 	glFrontFace(GL_CCW);
 	for (i = 0; i < gl.object_transparent.size(); i++)
 	{
@@ -1100,8 +1128,6 @@ r_gltick(struct r_tick tick)
 		glm::mat4 model = glm::identity<glm::mat4>();
 		model = glm::translate(model, gl.object_transparent[i].explicit_position);
 		mvp = gl.trackball.viewproj * model;
-
-		std::cout << gl.object_transparent[i].name << "\n";
 
 		glUniformMatrix4fv(gl.program.uniform.model, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(gl.program.uniform.mvp, 1, GL_FALSE, glm::value_ptr(mvp));
@@ -1114,13 +1140,20 @@ r_gltick(struct r_tick tick)
 		{
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, m.diffuse_texture);
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, m.normal_texture);
 		}
 		else
 		{
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, gl.texture_white);
+		}
+		if (m.normal_texture)
+		{
+
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, m.normal_texture);
+		}
+		else
+		{
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, gl.texture_normal);
 		}
@@ -1136,7 +1169,7 @@ r_gltick(struct r_tick tick)
 	glDisable(GL_DEPTH_TEST);
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(gl.program_display.uniform.imgtexture, 0);
-	glUniform2fv(gl.program_display.uniform.display_resolution, 1, glm::value_ptr(glm::vec2(1680.0f, 1050.0f)));
+	glUniform2fv(gl.program_display.uniform.display_resolution, 1, glm::value_ptr(glm::vec2(def_w, def_h)));
 	glBindTexture(GL_TEXTURE_2D, gl.texture_fb_display);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glEnable(GL_DEPTH_TEST);

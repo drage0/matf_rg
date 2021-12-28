@@ -33,7 +33,7 @@ void main()
     float attenuation = 1.0 / (0.01f + 0.01f * distance + 0.002f * (distance * distance));   
    
     // get diffuse color
-    vec3 color = diffuse_in*texture(imgtexture, uv).rgb*vec3(0.79f);
+    vec3 color = diffuse_in*texture(imgtexture, uv).rgb*vec3(0.29f);
     // ambient
     vec3 ambient = ambient_in;
     // diffuse
@@ -66,6 +66,6 @@ void main()
 
 
     colour.rgb = pow(colour.rgb, vec3(1.0/0.388));
-    colour.a = 1.0f;
+    colour.a = 1.0-transparency_in;
 
 }

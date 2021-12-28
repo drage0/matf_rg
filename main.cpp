@@ -175,7 +175,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 	wcex.lpszClassName = classdummy;
 	RegisterClassEx(&wcex);
 
-	windowdummy = CreateWindow(classdummy, TEXT(""), WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, 1680, 1050, NULL, NULL, instance, NULL);
+	windowdummy = CreateWindow(classdummy, TEXT(""), WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, def_w, def_h, NULL, NULL, instance, NULL);
 	hdcdummy = GetDC(windowdummy);
 
 	pfd = { };
@@ -215,7 +215,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 	wcex.lpszClassName = classmain;
 	RegisterClassEx(&wcex);
 
-	window = CreateWindowEx(0, classmain, TEXT("aaaaa"), WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, 1680, 1050, NULL, NULL, instance, NULL);
+	window = CreateWindowEx(0, classmain, TEXT("aaaaa"), WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, def_w, def_h, NULL, NULL, instance, NULL);
 	hdc = GetDC(window);
 
 	wglChoosePixelFormatARB(hdc, pixel, NULL, 1, &format_id, &formatcount);

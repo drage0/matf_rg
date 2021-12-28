@@ -1,5 +1,8 @@
 #include "global.hpp"
 
+int def_w = 800;
+int def_h = 600;
+
 #if defined(_WIN64) || defined(_WIN32)
 PFNGLCREATEPROGRAMPROC glCreateProgram = 0;
 PFNGLDELETEPROGRAMPROC glDeleteProgram = 0;
