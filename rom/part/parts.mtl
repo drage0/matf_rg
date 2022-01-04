@@ -1,9 +1,3 @@
-newmtl initialShadingGroup
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
 newmtl phong1SG
 illum 4
 Kd 0.00 0.00 0.00
@@ -30,6 +24,7 @@ Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 map_Kd decor1.jpg
+bump  -bm 1 DirtWindowStains005_NRM_6K.jpg
 Ni 1.00
 Ks 0.50 0.50 0.50
 Ns 18.00
@@ -93,9 +88,11 @@ Ks 0.50 0.50 0.50
 Ns 18.00
 newmtl phong10SG
 illum 4
-Kd 0.94 0.94 0.94
+Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
+map_Kd tex.jpg
+bump  -bm 1 Plaster35_NRM_3K.jpg
 Ni 1.00
 Ks 0.50 0.50 0.50
 Ns 18.00
@@ -114,6 +111,7 @@ illum 4
 Kd 0.12 0.12 0.12
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
+bump  -bm 1 DirtWindowStains005_NRM_6K.jpg
 Ni 1.00
 Ks 0.50 0.50 0.50
 Ns 18.00

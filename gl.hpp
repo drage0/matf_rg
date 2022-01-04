@@ -21,6 +21,7 @@ enum class scene: unsigned char
 	SCENE_VOID,
 	SCENE_ROOM,
 	SCENE_PRIMITIVES,
+	SCENE_3,
 };
 
 extern int r_glbegin(void);

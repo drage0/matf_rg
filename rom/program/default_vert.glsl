@@ -23,12 +23,9 @@ void main()
     uv = uv_;
     fpos = vec3(model * vec4(pos, 1.0));
 
-    mat3 normalMatrix = transpose(inverse(mat3(model)));
-    vec3 T = normalize(normalMatrix * vtangent_);
-    vec3 N = normalize(normalMatrix * vnorm_);
-    T = normalize(T - dot(T, N) * N);
-    vec3 B = cross(N, T);
-    
+    vec3 T = normalize(mat3(model) * vtangent_);
+    vec3 B = normalize(mat3(model) * vbitangent_);
+    vec3 N = normalize(mat3(model) * vnorm_);
     mat3 TBN = transpose(mat3(T, B, N));
     TangentLightPos = TBN * vec3(eye.x, eye.y, eye.z);
     TangentViewPos  = TBN * vec3(eye.x, eye.y, eye.z);

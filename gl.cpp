@@ -73,6 +73,7 @@ static struct
 	GLuint texture_cubemap;
 	GLuint texture_billboard_sunguy;
 	GLuint texture_fb_display;
+	GLuint texture_displace_test;
 
 	GLuint fb_display;
 
@@ -95,6 +96,7 @@ static struct
 			uint32_t imgtexture;
 			uint32_t normalmap;
 			uint32_t model;
+			uint32_t parallaxmap;
 		} uniform;
 	} program;
 
@@ -278,6 +280,7 @@ program_new(const char* vertex_file_path, const char* fragment_file_path, int wh
 		gl.program.uniform.imgtexture = glGetUniformLocation(program, "imgtexture");
 		gl.program.uniform.normalmap = glGetUniformLocation(program, "normalmap");
 		gl.program.uniform.model = glGetUniformLocation(program, "model");
+		gl.program.uniform.parallaxmap = glGetUniformLocation(program, "parallaxmap");
 	}
 	else if (which == 1)
 	{
@@ -346,6 +349,15 @@ r_newscene(enum scene scene)
 	case scene::SCENE_PRIMITIVES:
 		fp.open(workdir + "parts2.obj");
 		fm.open(workdir + "parts2.mtl");
+		gl.trackball.pitch = -3.14159f / 8.0f;
+		gl.trackball.yaw = -3.14159f / 4.0f;
+		gl.trackball.focus = { 0.0f, 0.0f, 0.0f };
+		gl.trackball.radius = 16.0f;
+		gl.billboard[0].position = { 4.0f, -10.0f, 2.0f };
+		break;
+	case scene::SCENE_3:
+		fp.open(workdir + "parts3.obj");
+		fm.open(workdir + "parts3.mtl");
 		gl.trackball.pitch = -3.14159f / 8.0f;
 		gl.trackball.yaw = -3.14159f / 4.0f;
 		gl.trackball.focus = { 0.0f, 0.0f, 0.0f };
@@ -825,6 +837,11 @@ r_glbegin(void)
 	glBindTexture(GL_TEXTURE_2D, gl.texture_scene2);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	stbi_image_free(data);
+	data = stbi_load("rom/Cobblestone16_DISP_6K.jpg", &w, &h, &c, 0);
+	glGenTextures(1, &gl.texture_displace_test);
+	glBindTexture(GL_TEXTURE_2D, gl.texture_displace_test);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	stbi_image_free(data);
 
 	billboard.position = { 0.0f, 0.0f, 0.0f };
 	data = stbi_load("rom/sun.png", &w, &h, &c, 0);
@@ -1008,17 +1025,27 @@ r_gltick(struct r_tick tick)
 		glDrawArrays(GL_LINES, 0, 2);
 	}
 
+	//
+	// Regular object.
+	//
 	glUseProgram(gl.program.id);
 	glUniformMatrix4fv(gl.program.uniform.mvp, 1, GL_FALSE, glm::value_ptr(gl.trackball.viewproj));
-	glUniform3fv(gl.program.uniform.eye, 1, glm::value_ptr(gl.trackball.position));
+	if (gl.scene != scene::SCENE_ROOM)
+	{
+		glUniform3fv(gl.program.uniform.eye, 1, glm::value_ptr(glm::vec3(gl.trackball.position.x, -gl.trackball.position.y, gl.trackball.position.z)));
+	}
+	else
+	{
+		glUniform3fv(gl.program.uniform.eye, 1, glm::value_ptr(gl.trackball.position));
+	}
 	glUniform3fv(gl.program.uniform.distant_light_dir, 1, glm::value_ptr(glm::vec3(gl.billboard[0].position.x, -gl.billboard[0].position.y, gl.billboard[0].position.z)));
 	glUniformMatrix4fv(gl.program.uniform.model, 1, GL_FALSE, glm::value_ptr(glm::identity<glm::mat4>()));
 	glUniform1i(gl.program.uniform.imgtexture, 0);
 	glUniform1i(gl.program.uniform.normalmap, 1);
+	glUniform1i(gl.program.uniform.parallaxmap, 2);
+	glActiveTexture(GL_TEXTURE2);
+	//glBindTexture(GL_TEXTURE_2D, gl.texture_white);
 
-	//
-	// Regular object.
-	//
 	glBindVertexArray(gl.vao);
 	for (i = 0; i < gl.object.size(); i++)
 	{
@@ -1048,6 +1075,13 @@ r_gltick(struct r_tick tick)
 		{
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, gl.texture_normal);
+		}
+
+		if (gl.object.at(i).name == "PAR")
+		{
+			std::cout << "PAR TEST" << std::endl;
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, gl.texture_displace_test);
 		}
 
 		glDrawArrays(GL_TRIANGLES, gl.object[i].vfirst, gl.object[i].vcount);

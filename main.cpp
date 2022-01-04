@@ -23,6 +23,7 @@ static struct
 		int number_0;
 		int number_1;
 		int number_2;
+		int number_3;
 	} controller;
 } win32;
 
@@ -55,6 +56,10 @@ windowproc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			win32.controller.number_2 = 1;
 		}
+		else if (wParam == '3')
+		{
+			win32.controller.number_3 = 1;
+		}
 		else if (wParam == '0')
 		{
 			win32.controller.number_0 = 1;
@@ -68,6 +73,10 @@ windowproc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 		else if (wParam == '2')
 		{
 			win32.controller.number_2 = 0;
+		}
+		else if (wParam == '3')
+		{
+			win32.controller.number_3 = 0;
 		}
 		else if (wParam == '0')
 		{
@@ -344,6 +353,13 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 		else if (win32.controller.number_2)
 		{
 			if (r_newscene(scene::SCENE_PRIMITIVES))
+			{
+				std::cout << "bad issue\n";
+			}
+		}
+		else if (win32.controller.number_3)
+		{
+			if (r_newscene(scene::SCENE_3))
 			{
 				std::cout << "bad issue\n";
 			}
