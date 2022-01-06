@@ -21,6 +21,7 @@ extern int def_h;
 #define NOMCX
 #include <Windows.h>
 #include <Windowsx.h>
+#include <playsoundapi.h>
 
 #include <GL/gl.h>
 

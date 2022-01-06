@@ -323,6 +323,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 		if (message.message == WM_QUIT)
 		{
 			win32.display.open = 0;
+			r_newscene(scene::SCENE_VOID);
 		}
 
 		if (win32.controller.lmb || win32.controller.mmb)
@@ -345,6 +346,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 
 		if (win32.controller.number_1)
 		{
+			PlaySound(TEXT("rom/audio/DSSWTCHN.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			if (r_newscene(scene::SCENE_ROOM))
 			{
 				std::cout << "bad issue\n";
@@ -352,6 +354,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 		}
 		else if (win32.controller.number_2)
 		{
+			PlaySound(TEXT("rom/audio/DSSWTCHN.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			if (r_newscene(scene::SCENE_PRIMITIVES))
 			{
 				std::cout << "bad issue\n";
@@ -359,6 +362,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 		}
 		else if (win32.controller.number_3)
 		{
+			PlaySound(TEXT("rom/audio/DSSWTCHN.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			if (r_newscene(scene::SCENE_3))
 			{
 				std::cout << "bad issue\n";
@@ -366,6 +370,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 		}
 		else if (win32.controller.number_0)
 		{
+			PlaySound(TEXT("rom/audio/DSSWTCHN.wav"), NULL, SND_FILENAME | SND_ASYNC);
 			if (r_newscene(scene::SCENE_VOID))
 			{
 				std::cout << "bad issue\n";
@@ -380,7 +385,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 		SwapBuffers(hdc);
 		Sleep(1);
 	}
-
+	PlaySound(TEXT("rom/audio/DSHOOF.wav"), NULL, SND_FILENAME | SND_SYNC);
 	r_glexit();
 	ReleaseDC(window, hdc);
 	DestroyWindow(window);
