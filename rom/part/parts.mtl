@@ -82,6 +82,7 @@ illum 4
 Kd 0.08 0.08 0.08
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
+map_Kd WoodFine04_COL_VAR2_HIRES.jpg
 bump  -bm 1 Plaster35_NRM_3K.jpg
 Ni 1.00
 Ks 0.50 0.50 0.50
@@ -111,6 +112,7 @@ illum 4
 Kd 0.12 0.12 0.12
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
+map_Kd WoodFine04_COL_VAR2_HIRES.jpg
 bump  -bm 1 DirtWindowStains005_NRM_6K.jpg
 Ni 1.00
 Ks 0.50 0.50 0.50
