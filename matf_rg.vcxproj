@@ -107,6 +107,9 @@
     <None Include="rom\program\skybox_frag.glsl" />
     <None Include="rom\program\skybox_vert.glsl" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="README.md" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
