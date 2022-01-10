@@ -926,7 +926,7 @@ r_glbegin(void)
 
 	glViewport(0, 0, def_w, def_h);
 
-	return r_newscene(scene::SCENE_VOID);
+	return r_newscene(scene::SCENE_ROOM);
 }
 
 void
