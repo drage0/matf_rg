@@ -1097,7 +1097,7 @@ r_gltick(struct r_tick tick)
 
 		if (gl.object.at(i).name == "PAR")
 		{
-			std::cout << "PAR TEST" << std::endl;
+			//std::cout << "PAR TEST" << std::endl;
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_2D, gl.texture_displace_test);
 		}

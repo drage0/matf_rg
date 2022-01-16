@@ -11,6 +11,10 @@ struct
 	int mouse_left_down;
 	int mouse_middle_down;
 	
+	int k1;
+	int k2;
+	int k3;
+	
 	int rep_scene1;
 	int rep_scene2;
 } platform;
@@ -20,7 +24,6 @@ framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
 	def_w = width;
 	def_h = height;
-	r_glexit();
 	r_glbegin();
 	//glViewport(0, 0, width, height);
 }
@@ -108,6 +111,18 @@ key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
     {
         platform.rep_scene2 = 1;
     }
+    else if (key == GLFW_KEY_1)
+    {
+    	platform.k1 = 1;
+    }
+    else if (key == GLFW_KEY_2)
+    {
+    	platform.k2 = 1;
+    }
+    else if (key == GLFW_KEY_3)
+    {
+    	platform.k3 = 1;
+    }
 }
 
 void
@@ -126,12 +141,14 @@ main(int argc, char **argv)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	GLFWwindow *window = glfwCreateWindow(def_w, def_h, "matf-rg 2021/2022 (%s)", NULL, NULL);
+	GLFWwindow *window = glfwCreateWindow(def_w, def_h, "matf-rg 2021/2022", NULL, NULL);
 	
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -145,15 +162,35 @@ main(int argc, char **argv)
 	glewInit();
     
     	r_glbegin();
-    	r_newscene(scene::SCENE_ROOM);
+    	//r_newscene(scene::SCENE_ROOM);
     	tick = { };
     	while (!glfwWindowShouldClose(window))
     	{
     		processInput(window);
     		if (platform.rep_scene1)
+    		{
     			r_newscene(scene::SCENE_ROOM);
+    		}
     		else if (platform.rep_scene2)
+    		{
     			r_newscene(scene::SCENE_PRIMITIVES);
+    		}
+    			
+		if (platform.k1)
+		{
+			r_newscene(scene::SCENE_ROOM);
+			platform.k1 = 0;
+		}
+		else if (platform.k2)
+		{
+			r_newscene(scene::SCENE_PRIMITIVES);
+			platform.k2 = 0;
+		}
+		else if (platform.k3)
+		{
+			r_newscene(scene::SCENE_3);
+			platform.k3 = 0;
+		}
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//std::cout << tick.cursor.dx << "  " << tick.cursor.dy << "  " << tick.cursor.x << "  " << tick.cursor.y << std::endl;
@@ -162,6 +199,9 @@ main(int argc, char **argv)
 		tick.cursor.dy = 0;
 		platform.rep_scene1 = 0;
 		platform.rep_scene2=  0;
+		platform.k1 = 0;
+		platform.k2 = 0;
+		platform.k3 = 0;
 		tick.cursor.wheel = 0;
     		glfwSwapBuffers(window);
         	glfwPollEvents();
