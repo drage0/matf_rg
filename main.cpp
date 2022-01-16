@@ -13,6 +13,11 @@ static struct
 	{
 		int open;
 	} display;
+	
+	struct
+	{
+		int display_new;
+	} event;
 
 	struct
 	{
@@ -114,6 +119,16 @@ windowproc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 		win32.cursor.x = GET_X_LPARAM(lParam);
 		win32.cursor.y = GET_Y_LPARAM(lParam);
 		break;
+	case WM_SIZE:
+	{
+		UINT width = LOWORD(lParam);
+		UINT height = HIWORD(lParam);
+
+		def_w = width;
+		def_h = height;
+		win32.event.display_new = 1;
+		break;
+	}
 	case WM_PAINT:
 		BeginPaint(window, &ps);
 		EndPaint(window, &ps);
@@ -171,8 +186,8 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 		0
 	};
 
-	AllocConsole();
-	freopen("CONOUT$", "w", stdout);
+	//AllocConsole();
+	//freopen("CONOUT$", "w", stdout);
 
 	/* Find wgl functions for context creation. */
 	wcex = {};
@@ -224,7 +239,7 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 	wcex.lpszClassName = classmain;
 	RegisterClassEx(&wcex);
 
-	window = CreateWindowEx(0, classmain, TEXT("aaaaa"), WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, def_w, def_h, NULL, NULL, instance, NULL);
+	window = CreateWindowEx(0, classmain, TEXT("aaaaa"), WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_MINIMIZEBOX | WS_MAXIMIZEBOX, 0, 0, def_w, def_h, NULL, NULL, instance, NULL);
 	hdc = GetDC(window);
 
 	wglChoosePixelFormatARB(hdc, pixel, NULL, 1, &format_id, &formatcount);
@@ -324,6 +339,18 @@ WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previnstance, _In_ LPSTR cmd
 		{
 			win32.display.open = 0;
 			r_newscene(scene::SCENE_VOID);
+		}
+
+		if (win32.event.display_new)
+		{
+			static int first = 1;
+
+			if (!first)
+			{
+				r_glbegin();
+			}
+			first = 0;
+			win32.event.display_new = 0;
 		}
 
 		if (win32.controller.lmb || win32.controller.mmb)

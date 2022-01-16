@@ -18,7 +18,7 @@ struct r_tick
 
 enum class scene: unsigned char
 {
-	SCENE_VOID,
+	SCENE_VOID = 0,
 	SCENE_ROOM,
 	SCENE_PRIMITIVES,
 	SCENE_3,

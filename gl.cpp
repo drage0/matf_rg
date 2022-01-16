@@ -3,6 +3,32 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+struct object
+{
+	uint32_t vcount;
+	uint32_t vfirst;
+	std::string material;
+	std::string name;
+	glm::vec3 explicit_position = { 0.0f, 0.0f, 0.0f };
+};
+
+struct billboard
+{
+	glm::vec3 position;
+	glm::vec3 facing;
+	uint32_t texture;
+};
+
+struct material
+{
+	glm::vec3 ambient = { 0.0f, 0.0f, 0.0f }; /* Ka */
+	glm::vec3 diffuse = { 1.0f, 1.0f, 1.0f }; /* Kd */
+	glm::vec4 specular = { 0.0f, 0.0f, 0.0f, 20.0 }; /* Ks, Ns */
+	float transparency = 0.0f;
+	uint32_t diffuse_texture = 0;   /* map_Kd */
+	uint32_t normal_texture = 0;   /* bump */
+};
+
 /*
  * Trackball parameters are used in cam_trackball_update to update the focus and translation vectors.
  * Ported from C.
@@ -28,32 +54,6 @@ struct trackball
 	glm::vec3 p_x;
 	glm::vec3 p_y;
 	glm::vec3 p_z;
-};
-
-struct object
-{
-	uint32_t vcount;
-	uint32_t vfirst;
-	std::string material;
-	std::string name;
-	glm::vec3 explicit_position = { 0.0f, 0.0f, 0.0f };
-};
-
-struct billboard
-{
-	glm::vec3 position;
-	glm::vec3 facing;
-	uint32_t texture;
-};
-
-struct material
-{
-	glm::vec3 ambient = { 0.0f, 0.0f, 0.0f }; /* Ka */
-	glm::vec3 diffuse = { 1.0f, 1.0f, 1.0f }; /* Kd */
-	glm::vec4 specular = { 0.0f, 0.0f, 0.0f, 20.0 }; /* Ks, Ns */
-	float transparency = 0.0f;
-	uint32_t diffuse_texture = 0;   /* map_Kd */
-	uint32_t normal_texture = 0;   /* bump */
 };
 
 static struct
@@ -140,7 +140,7 @@ static struct
 		} uniform;
 	} program_display;
 
-	enum scene scene;
+	enum scene scene = scene::SCENE_VOID;
 } gl;
 
 /*
@@ -267,7 +267,6 @@ program_new(const char* vertex_file_path, const char* fragment_file_path, int wh
 	glAttachShader(program, fragment);
 	glLinkProgram(program);
 
-	// TODO obrisi ovo
 	if (which == 0)
 	{
 		gl.program.uniform.mvp = glGetUniformLocation(program, "mvp");
@@ -387,6 +386,7 @@ r_newscene(enum scene scene)
 		if (m.second.diffuse_texture)
 		{
 			glDeleteTextures(1, &m.second.diffuse_texture);
+			glDeleteTextures(1, &m.second.normal_texture);
 		}
 	}
 	gl.material.clear();
@@ -854,6 +854,7 @@ r_glbegin(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	stbi_image_free(data);
+	gl.billboard.clear();
 	gl.billboard.push_back(billboard);
 
 	glGenTextures(1, &gl.texture_cubemap2);
@@ -896,6 +897,7 @@ r_glbegin(void)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
+	// SKY
 	glGenBuffers(1, &gl.vbo_sky);
 	glGenVertexArrays(1, &gl.vao_sky);
 	glBindVertexArray(gl.vao_sky);
@@ -904,6 +906,7 @@ r_glbegin(void)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (3) * sizeof(float), (void*)(sizeof(float) * 0));
 	glEnableVertexAttribArray(0);
 
+	// BILLBOARD
 	glGenBuffers(1, &gl.vbo_bb);
 	glGenVertexArrays(1, &gl.vao_bb);
 	glBindVertexArray(gl.vao_bb);
@@ -914,6 +917,7 @@ r_glbegin(void)
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
+	// POSTPROCESS EFFECT
 	glGenBuffers(1, &gl.vbo_ppfx);
 	glGenVertexArrays(1, &gl.vao_ppfx);
 	glBindVertexArray(gl.vao_ppfx);
@@ -926,7 +930,21 @@ r_glbegin(void)
 
 	glViewport(0, 0, def_w, def_h);
 
-	return r_newscene(scene::SCENE_ROOM);
+	{
+		static int firstr = 1;
+
+		if (firstr)
+		{
+			firstr = 0;
+			return r_newscene(scene::SCENE_ROOM);
+		}
+		else
+		{
+
+			return r_newscene(gl.scene);
+		}
+	}
+
 }
 
 void
@@ -1212,4 +1230,5 @@ r_gltick(struct r_tick tick)
 void
 r_glexit(void)
 {
+	r_newscene(scene::SCENE_VOID);
 }
