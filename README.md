@@ -37,9 +37,8 @@ https://www.youtube.com/watch?v=alylufATbGI
 
 ## Слике
 
-!()[Untitled.png]
-
-!()[Untitled2.png]
+![слика 1](./Untitled2.jpg)
+![слика 2](./Untitled.jpg)
 
 ## Напомена
 
