@@ -1,53 +1,53 @@
 ﻿# matf-rg 2022
 
-## Градиво групе "А"
+## Material of group "A"
 
 - Framebuffers
 - Cubemaps
 
-## Градиво групе "Б"
+## Material of group "B"
 
 - Normal mapping, Parallax Mapping
 
 ### Parallax Mapping
 
-Није у потпуности коректно урађено, текстура се учитава и преноси у програм али не производи никакав ефекат.
+It isn't finished yet, the texture is loaded and transferred to the shader but there will be no effect.
 
-## Коришћење програма
+## How to use
 
-### Мењање сцена
+### Changing scenes
 
-`1` - прва, подразумевана сцена,
+`1` - the first scene is default,
 
-`2` - друга сцена са једноставним телима,
+`2` - the second scene with simple geometry,
 
-`3` - трећа сцена са једним четвороуглом.
+`3` - the third scene with one quad.
 
-### Камера
+### Camera
 
-`ALT`+`леви тастер миша` (држи) - орбита око фокусиране тачке,
+`ALT`+`left mouse button` (hold) - orbit around the center,
 
-`ALT`+`средњи тастер миша` (држи) - бочно померање фокусне тачке,
+`ALT`+`middle mouse button` (hold) - move the center point,
 
-`точак миша` - умањи и увећај растојање од фокусне тачке.
+`mouse wheel` - decrease or increase the distance to the center.
 
-### Програм
+### Program
 
-`ESCAPE` - затвори програм.
+`ESCAPE` - close the program.
 
-## Видео
+## Video
 
 https://www.youtube.com/watch?v=alylufATbGI
 
-## Слике
+## Pictures
 
-![слика 1](./Untitled2.jpg)
-![слика 2](./Untitled.jpg)
+![picture 1](./Untitled2.jpg)
+![picture 2](./Untitled.jpg)
 
-## Напомена
+## Note
 
-Прва учитана сцена (сцена `1`) захтева 1,5Гб видео меморије и може потрајати учитавање.
+The first scene loaded (scene `1`) requires 1500MB of video memory and may take some time to load.
 
-## Изворне датотеке сцена
+## Source scene files
 
 https://www.dropbox.com/s/gjxj2bvfdjgnsws/matf-rg-modeli.7z?dl=1
